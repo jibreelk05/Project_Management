@@ -5,6 +5,7 @@ const helmet = require('helmet');
 const { swaggerUi, swaggerSpec } = require('./config/swagger');
 const AppError = require('./utils/appError');
 const errorHandler = require('./middlewares/errorHandler');
+const authRouter = require('./routes/authRoutes');
 
 const app = express();
 
@@ -15,6 +16,9 @@ app.use(express.json());
 
 // Swagger documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+// Routes
+app.use('/api/v1/auth', authRouter);
 
 // Routes will be imported here
 
