@@ -1,1 +1,0 @@
-I made a mistake: the file should be named jwt.js, not jjwt.js. Let me correct that.

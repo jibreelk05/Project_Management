@@ -1,8 +1,4 @@
-/**
- * Custom Error class for operational errors in the application
- * Extends the native JavaScript Error class
- */
-class AppError extends Error {
+export class AppError extends Error {
   /**
    * Create an AppError instance
    * @param {string} message - Error message
@@ -20,4 +16,4 @@ class AppError extends Error {
   }
 }
 
-module.exports = AppError;
+export default AppError;

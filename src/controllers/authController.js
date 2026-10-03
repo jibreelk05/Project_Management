@@ -26,3 +26,12 @@ export const login = catchAsync(async (req, res, next) => {
     }
   });
 });
+
+export const getMe = (req, res, next) => {
+  res.status(200).json({
+    status: 'success',
+    data: {
+      user: req.user
+    }
+  });
+};

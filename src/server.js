@@ -8,10 +8,10 @@ dotenv.config();
 // Connect to MongoDB
 connectDB();
 
-const PORT = process.env.PORT || 5000;
-
-const server = app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+const port = process.env.PORT || 5000;
+const server = app.listen(port, () => {
+  console.log(`\n🚀 Server is running successfully!`);
+  console.log(`🔗 Local: http://localhost:${port}`);
 });
 
 // Handle unhandled promise rejections

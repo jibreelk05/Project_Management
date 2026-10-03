@@ -1,18 +1,18 @@
-/**
- * Global error handling middleware for Express applications
- * Handles different types of errors and sends appropriate responses
- * @param {Error} err - Error object
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- * @param {Function} next - Express next function
- */
+import AppError from '../utils/appError.js';
+
 const errorHandler = (err, req, res, next) => {
+  // Log error in development
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  if (isDevelopment) {
+    console.error('SERVER ERROR 💥:', err);
+  }
+
   // Set default values if not provided by the error
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
 
   // Determine if we're in development or production
-  const isDevelopment = process.env.NODE_ENV === 'development';
+  // const isDevelopment = process.env.NODE_ENV === 'development'; // moved up
 
   // Send error response
   res.status(err.statusCode).json({
@@ -51,4 +51,4 @@ errorHandler.handleMongooseErrors = (err, req, res, next) => {
   return errorHandler(err, req, res, next);
 };
 
-module.exports = errorHandler;
+export default errorHandler;

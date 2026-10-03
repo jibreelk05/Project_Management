@@ -1,11 +1,10 @@
-// Express app setup
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-const { swaggerUi, swaggerSpec } = require('./config/swagger');
-const AppError = require('./utils/appError');
-const errorHandler = require('./middlewares/errorHandler');
-const authRouter = require('./routes/authRoutes');
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import { swaggerUi, swaggerSpec } from './config/swagger.js';
+import AppError from './utils/appError.js';
+import errorHandler from './middlewares/errorHandler.js';
+import authRouter from './routes/authRoutes.js';
 
 const app = express();
 
@@ -20,8 +19,6 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // Routes
 app.use('/api/v1/auth', authRouter);
 
-// Routes will be imported here
-
 // Handle unhandled routes
 app.all('*', (req, res, next) => {
   const err = new AppError(`Can't find ${req.originalUrl} on this server!`, 404);
@@ -34,4 +31,4 @@ app.use(errorHandler);
 // Handle specific Mongoose errors
 app.use(errorHandler.handleMongooseErrors);
 
-module.exports = app;
+export default app;
