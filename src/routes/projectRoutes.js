@@ -9,6 +9,7 @@ import {
   removeProject,
 } from '../controllers/projectController.js';
 import { protect, restrictTo } from '../middlewares/auth.js';
+import { isProjectMember } from '../middlewares/guardMiddleware.js';
 
 const router = Router();
 
@@ -22,8 +23,8 @@ router
 
 router
   .route('/:id')
-  .get(getProject)
-  .patch(restrictTo('PROJECT_MANAGER', 'ADMIN'), validate(updateProjectSchema), updateExistingProject)
-  .delete(restrictTo('PROJECT_MANAGER', 'ADMIN'), removeProject);
+  .get(isProjectMember, getProject)
+  .patch(restrictTo('PROJECT_MANAGER', 'ADMIN'), isProjectMember, validate(updateProjectSchema), updateExistingProject)
+  .delete(restrictTo('PROJECT_MANAGER', 'ADMIN'), isProjectMember, removeProject);
 
 export default router;

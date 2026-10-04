@@ -9,6 +9,7 @@ import {
   removeTask,
 } from '../controllers/taskController.js';
 import { protect, restrictTo } from '../middlewares/auth.js';
+import { canAccessTask } from '../middlewares/guardMiddleware.js';
 
 const router = Router();
 
@@ -22,8 +23,8 @@ router
 
 router
   .route('/:id')
-  .get(getTask)
-  .patch(validate(updateTaskSchema), updateExistingTask)
-  .delete(restrictTo('PROJECT_MANAGER', 'ADMIN'), removeTask);
+  .get(canAccessTask, getTask)
+  .patch(canAccessTask, validate(updateTaskSchema), updateExistingTask)
+  .delete(restrictTo('PROJECT_MANAGER', 'ADMIN'), canAccessTask, removeTask);
 
 export default router;

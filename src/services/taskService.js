@@ -11,25 +11,25 @@ const taskPopulate = [
 export const getAllTasks = async (query, userId, userRole) => {
   const filter = {};
 
-  // Apply query filters
+  // Role-based scoping
+  if (userRole === 'DEVELOPER') {
+    // Developers can see tasks in every project they belong to (creator or team member)
+    const myProjects = await Project.find({
+      $or: [{ createdBy: userId }, { teamMembers: userId }],
+    }).select('_id');
+    filter.project = { $in: myProjects.map((p) => p._id) };
+  } else if (userRole === 'PROJECT_MANAGER') {
+    // Managers can see tasks in projects they created
+    const myProjects = await Project.find({ createdBy: userId }).select('_id');
+    filter.project = { $in: myProjects.map((p) => p._id) };
+  }
+
+  // Query filters narrow the scoped set, never widen it
   if (query.status) {
     filter.status = query.status;
   }
-
-  // Role-based scoping
-  if (userRole === 'DEVELOPER') {
-    // Developers can only see tasks assigned to them
-    filter.assignedTo = userId;
-  } else if (userRole === 'PROJECT_MANAGER') {
-    // Managers can only see tasks in projects they created
-    const myProjects = await Project.find({ createdBy: userId }).select('_id');
-    const projectIds = myProjects.map((p) => p._id);
-    filter.project = { $in: projectIds };
-  }
-
-  // Apply projectId filter (after scoping so it narrows, not widens)
   if (query.projectId) {
-    filter.project = query.projectId;
+    filter.$and = [{ project: query.projectId }];
   }
 
   const tasks = await Task.find(filter).populate(taskPopulate).sort({ createdAt: -1 });
@@ -44,10 +44,15 @@ export const getTaskById = async (taskId, userId, userRole) => {
     throw new AppError('Task not found', 404);
   }
 
-  // DEVELOPER can only view tasks assigned to them
+  // DEVELOPER can view tasks in projects they belong to (creator or team member)
   if (userRole === 'DEVELOPER') {
-    const isAssigned = task.assignedTo && task.assignedTo._id.toString() === userId.toString();
-    if (!isAssigned) {
+    const project = await Project.findById(task.project._id);
+    const isMember =
+      project &&
+      (project.createdBy.toString() === userId.toString() ||
+        project.teamMembers.some((member) => member.toString() === userId.toString()));
+
+    if (!isMember) {
       throw new AppError('You do not have permission to view this task', 403);
     }
   }
