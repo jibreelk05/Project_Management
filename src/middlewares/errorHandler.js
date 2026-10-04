@@ -11,13 +11,17 @@ const errorHandler = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
 
-  // Determine if we're in development or production
-  // const isDevelopment = process.env.NODE_ENV === 'development'; // moved up
+  // Show operational (AppError) messages in production; hide internal 500 details
+  const message =
+    err.isOperational
+      ? err.message
+      : isDevelopment
+        ? err.message
+        : 'Something went wrong!';
 
-  // Send error response
   res.status(err.statusCode).json({
     status: err.status,
-    message: isDevelopment ? err.message : 'Something went wrong!',
+    message,
     ...(isDevelopment && { stack: err.stack }), // Include stack trace in development
     ...(isDevelopment && { error: err }), // Include full error object in development
   });
