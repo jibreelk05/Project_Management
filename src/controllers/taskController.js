@@ -8,11 +8,12 @@ import {
 } from '../services/taskService.js';
 
 export const getTasks = catchAsync(async (req, res, next) => {
-  const tasks = await getAllTasks(req.query, req.user._id, req.user.role);
+  const { data: tasks, pagination } = await getAllTasks(req.query, req.user._id, req.user.role);
 
   res.status(200).json({
     status: 'success',
     results: tasks.length,
+    pagination,
     data: {
       tasks,
     },

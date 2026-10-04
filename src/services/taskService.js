@@ -2,39 +2,35 @@ import Task from '../models/taskModel.js';
 import Project from '../models/projectModel.js';
 import User from '../models/userModel.js';
 import { AppError } from '../utils/appError.js';
+import ApiFeatures from '../utils/apiFeatures.js';
 
 const taskPopulate = [
   { path: 'project', select: 'name status' },
   { path: 'assignedTo', select: 'name email role' },
 ];
 
-export const getAllTasks = async (query, userId, userRole) => {
-  const filter = {};
+export const getAllTasks = async (queryParams, userId, userRole) => {
+  // Build role-based scope filter
+  const scopeFilter = {};
 
-  // Role-based scoping
   if (userRole === 'DEVELOPER') {
-    // Developers can see tasks in every project they belong to (creator or team member)
     const myProjects = await Project.find({
       $or: [{ createdBy: userId }, { teamMembers: userId }],
     }).select('_id');
-    filter.project = { $in: myProjects.map((p) => p._id) };
+    scopeFilter.project = { $in: myProjects.map((p) => p._id) };
   } else if (userRole === 'PROJECT_MANAGER') {
-    // Managers can see tasks in projects they created
     const myProjects = await Project.find({ createdBy: userId }).select('_id');
-    filter.project = { $in: myProjects.map((p) => p._id) };
+    scopeFilter.project = { $in: myProjects.map((p) => p._id) };
   }
 
-  // Query filters narrow the scoped set, never widen it
-  if (query.status) {
-    filter.status = query.status;
-  }
-  if (query.projectId) {
-    filter.$and = [{ project: query.projectId }];
-  }
+  const features = new ApiFeatures(Task.find(), queryParams, scopeFilter);
+  features.filter().search(['title', 'description']).sort().paginate();
+  await features.countTotal();
 
-  const tasks = await Task.find(filter).populate(taskPopulate).sort({ createdAt: -1 });
+  features.query.populate(taskPopulate);
 
-  return tasks;
+  const data = await features.exec();
+  return { data, pagination: features.paginationMeta };
 };
 
 export const getTaskById = async (taskId, userId, userRole) => {

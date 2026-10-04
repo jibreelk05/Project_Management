@@ -1,30 +1,24 @@
 import Project from '../models/projectModel.js';
 import { AppError } from '../utils/appError.js';
+import ApiFeatures from '../utils/apiFeatures.js';
 
-export const getAllProjects = async (query, userId, userRole) => {
-  const filter = {};
-
-  // DEVELOPER can only see projects they are part of
+export const getAllProjects = async (queryParams, userId, userRole) => {
+  // Build role-based scope filter
+  const scopeFilter = {};
   if (userRole === 'DEVELOPER') {
-    filter.$or = [{ createdBy: userId }, { teamMembers: userId }];
+    scopeFilter.$or = [{ createdBy: userId }, { teamMembers: userId }];
   }
 
-  // Apply status filter if provided
-  if (query.status) {
-    filter.status = query.status;
-  }
+  const features = new ApiFeatures(Project.find(), queryParams, scopeFilter);
+  features.filter().search(['name', 'description']).sort().paginate();
+  await features.countTotal();
 
-  // Apply priority filter if provided
-  if (query.priority) {
-    filter.priority = query.priority;
-  }
-
-  const projects = await Project.find(filter)
+  features.query
     .populate('createdBy', 'name email role')
-    .populate('teamMembers', 'name email role')
-    .sort({ createdAt: -1 });
+    .populate('teamMembers', 'name email role');
 
-  return projects;
+  const data = await features.exec();
+  return { data, pagination: features.paginationMeta };
 };
 
 export const getProjectById = async (projectId, userId, userRole) => {

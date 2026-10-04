@@ -8,11 +8,12 @@ import {
 } from '../services/projectService.js';
 
 export const getProjects = catchAsync(async (req, res, next) => {
-  const projects = await getAllProjects(req.query, req.user._id, req.user.role);
+  const { data: projects, pagination } = await getAllProjects(req.query, req.user._id, req.user.role);
 
   res.status(200).json({
     status: 'success',
     results: projects.length,
+    pagination,
     data: {
       projects,
     },
