@@ -1,1 +1,1 @@
-// Placeholder frontend file
+export { useAuth } from './useAuth';
