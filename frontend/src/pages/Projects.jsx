@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { FolderPlus, Search } from 'lucide-react';
 import ProjectCard from '../components/projects/ProjectCard';
 import ProjectModal from '../components/projects/ProjectModal';
+import ProjectMembersModal from '../components/projects/ProjectMembersModal';
 import DeleteConfirmModal from '../components/projects/DeleteConfirmModal';
 import { useAuth } from '../hooks/useAuth';
 import {
@@ -31,6 +32,9 @@ export default function Projects() {
 
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
+
+  const [membersModalOpen, setMembersModalOpen] = useState(false);
+  const [managingProject, setManagingProject] = useState(null);
 
   const fetchProjects = useCallback(async () => {
     try {
@@ -102,6 +106,16 @@ export default function Projects() {
     }
   };
 
+  const openMembersModal = (project) => {
+    setManagingProject(project);
+    setMembersModalOpen(true);
+  };
+
+  const closeMembersModal = () => {
+    setMembersModalOpen(false);
+    setManagingProject(null);
+  };
+
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -169,6 +183,7 @@ export default function Projects() {
               canManage={canManage}
               onEdit={openModal}
               onDelete={setDeleteTarget}
+              onManageMembers={openMembersModal}
             />
           ))}
         </div>
@@ -180,6 +195,13 @@ export default function Projects() {
         submitting={submitting}
         onClose={closeModal}
         onSubmit={handleSubmit}
+      />
+
+      <ProjectMembersModal
+        open={membersModalOpen}
+        project={managingProject}
+        onClose={closeMembersModal}
+        onUpdate={fetchProjects}
       />
 
       <DeleteConfirmModal

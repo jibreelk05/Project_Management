@@ -7,6 +7,7 @@ import errorHandler from './middlewares/errorHandler.js';
 import authRouter from './routes/authRoutes.js';
 import projectRouter from './routes/projectRoutes.js';
 import taskRouter from './routes/taskRoutes.js';
+import userRouter from './routes/userRoutes.js';
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/projects', projectRouter);
 app.use('/api/v1/tasks', taskRouter);
+app.use('/api/v1/users', userRouter);
 
 // Handle unhandled routes
 app.all('*', (req, res, next) => {

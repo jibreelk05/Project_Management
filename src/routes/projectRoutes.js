@@ -7,6 +7,8 @@ import {
   createNewProject,
   updateExistingProject,
   removeProject,
+  addProjectMember,
+  removeProjectMember,
 } from '../controllers/projectController.js';
 import { protect, restrictTo } from '../middlewares/auth.js';
 import { isProjectMember } from '../middlewares/guardMiddleware.js';
@@ -190,5 +192,10 @@ router
   .get(isProjectMember, getProject)
   .patch(restrictTo('PROJECT_MANAGER', 'ADMIN'), isProjectMember, validate(updateProjectSchema), updateExistingProject)
   .delete(restrictTo('PROJECT_MANAGER', 'ADMIN'), isProjectMember, removeProject);
+
+router
+  .route('/:id/members')
+  .post(restrictTo('PROJECT_MANAGER', 'ADMIN'), isProjectMember, addProjectMember)
+  .delete(restrictTo('PROJECT_MANAGER', 'ADMIN'), isProjectMember, removeProjectMember);
 
 export default router;

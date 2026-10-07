@@ -10,6 +10,7 @@ const EMPTY_FORM = {
   status: 'TODO',
   priority: 'MEDIUM',
   project: '',
+  assignedTo: '',
   dueDate: '',
 };
 
@@ -29,6 +30,7 @@ export default function TaskModal({
   onSubmit,
 }) {
   const [form, setForm] = useState(EMPTY_FORM);
+  const [projectMembers, setProjectMembers] = useState([]);
 
   useEffect(() => {
     if (open) {
@@ -38,10 +40,20 @@ export default function TaskModal({
         status: initialData?.status || 'TODO',
         priority: initialData?.priority || 'MEDIUM',
         project: initialData?.project?._id || '',
+        assignedTo: initialData?.assignedTo?._id || '',
         dueDate: toDateInput(initialData?.dueDate),
       });
     }
   }, [open, initialData]);
+
+  useEffect(() => {
+    const selectedProject = projects.find((p) => p._id === form.project);
+    const members = (selectedProject?.teamMembers || selectedProject?.members || []).filter(Boolean);
+    setProjectMembers(members);
+    if (selectedProject && !members.some((m) => m._id === form.assignedTo)) {
+      setForm((prev) => ({ ...prev, assignedTo: '' }));
+    }
+  }, [form.project, projects]);
 
   if (!open) return null;
 
@@ -138,6 +150,28 @@ export default function TaskModal({
               {projects.map((p) => (
                 <option key={p._id} value={p._id}>
                   {p.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className={labelClass}>Assignee</label>
+            <select
+              name="assignedTo"
+              value={form.assignedTo}
+              onChange={handleChange}
+              className={inputClass}
+            >
+              <option value="">— Unassigned —</option>
+              {projectMembers.length === 0 && form.project && (
+                <option value="" disabled>
+                  No team members assigned to this project yet
+                </option>
+              )}
+              {projectMembers.map((m) => (
+                <option key={m._id} value={m._id}>
+                  {m.name} ({m.email})
                 </option>
               ))}
             </select>

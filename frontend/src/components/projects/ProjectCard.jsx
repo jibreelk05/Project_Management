@@ -1,4 +1,4 @@
-import { CalendarRange, Pencil, Trash2 } from 'lucide-react';
+import { CalendarRange, Pencil, Trash2, Users } from 'lucide-react';
 
 const STATUS_STYLES = {
   TODO: 'bg-gray-100 text-gray-700',
@@ -16,8 +16,8 @@ const formatDate = (value) =>
       })
     : '—';
 
-export default function ProjectCard({ project, canManage, onEdit, onDelete }) {
-  const { name, description, status, startDate, endDate } = project;
+export default function ProjectCard({ project, canManage, onEdit, onDelete, onManageMembers }) {
+  const { name, description, status, startDate, endDate, members = [] } = project;
 
   return (
     <div className="flex flex-col rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
@@ -47,8 +47,37 @@ export default function ProjectCard({ project, canManage, onEdit, onDelete }) {
         </span>
       </div>
 
+      {members.length > 0 && (
+        <div className="mt-3 flex items-center gap-2">
+          <Users size={14} className="text-gray-400" />
+          <div className="flex -space-x-1">
+            {members.slice(0, 3).map((m, i) => (
+              <div
+                key={m._id || i}
+                className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-100 text-xs font-medium text-indigo-700 ring-2 ring-white"
+                title={m.name || m.email}
+              >
+                {(m.name || m.email || '?')[0].toUpperCase()}
+              </div>
+            ))}
+            {members.length > 3 && (
+              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 text-xs font-medium text-gray-600 ring-2 ring-white">
+                +{members.length - 3}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {canManage && (
         <div className="mt-4 flex justify-end gap-2 border-t border-gray-100 pt-3">
+          <button
+            onClick={() => onManageMembers?.(project)}
+            className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50"
+          >
+            <Users size={14} />
+            Members
+          </button>
           <button
             onClick={() => onEdit(project)}
             className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-indigo-600 transition-colors hover:bg-indigo-50"

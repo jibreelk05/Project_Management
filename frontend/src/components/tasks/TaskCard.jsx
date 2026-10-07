@@ -22,7 +22,7 @@ const formatDate = (value) =>
     : '—';
 
 export default function TaskCard({ task, canManage, onEdit, onDelete }) {
-  const { title, description, status, priority, project, dueDate } = task;
+  const { title, description, status, priority, project, dueDate, assignedTo } = task;
 
   return (
     <div className="flex flex-col rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
@@ -62,15 +62,22 @@ export default function TaskCard({ task, canManage, onEdit, onDelete }) {
         </span>
       </div>
 
-      {canManage && (
-        <div className="mt-4 flex justify-end gap-2 border-t border-gray-100 pt-3">
-          <button
-            onClick={() => onEdit(task)}
-            className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-indigo-600 transition-colors hover:bg-indigo-50"
-          >
-            <Pencil size={14} />
-            Edit
-          </button>
+      {assignedTo && (
+        <div className="mt-3 flex items-center gap-2 text-xs text-gray-600">
+          <span className="font-medium">Assigned to:</span>
+          <span>{assignedTo.name || assignedTo.email}</span>
+        </div>
+      )}
+
+      <div className="mt-4 flex justify-end gap-2 border-t border-gray-100 pt-3">
+        <button
+          onClick={() => onEdit(task)}
+          className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-indigo-600 transition-colors hover:bg-indigo-50"
+        >
+          <Pencil size={14} />
+          Edit
+        </button>
+        {canManage && (
           <button
             onClick={() => onDelete(task)}
             className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-50"
@@ -78,8 +85,8 @@ export default function TaskCard({ task, canManage, onEdit, onDelete }) {
             <Trash2 size={14} />
             Delete
           </button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

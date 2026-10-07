@@ -84,6 +84,7 @@ export default function Tasks() {
       status: form.status,
       priority: form.priority,
       project: form.project || undefined,
+      assignedTo: form.assignedTo || undefined,
       dueDate: toIso(form.dueDate),
     };
     try {
@@ -123,15 +124,13 @@ export default function Tasks() {
           <h2 className="text-2xl font-bold text-gray-900">Tasks</h2>
           <p className="mt-1 text-gray-500">Manage and track project tasks.</p>
         </div>
-        {canManage && (
-          <button
-            onClick={() => openModal()}
-            className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700"
-          >
-            <Plus size={18} />
-            Add Task
-          </button>
-        )}
+        <button
+          onClick={() => openModal()}
+          className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700"
+        >
+          <Plus size={18} />
+          Add Task
+        </button>
       </div>
 
       <div className="mt-6">

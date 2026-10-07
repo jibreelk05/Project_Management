@@ -1,36 +1,36 @@
-# Dependencies
-node_modules/
+# Dependencies (Root & Frontend)
+**/node_modules/
 
-# Environment variables
+# Production builds (Vite / Node)
+dist/
+**/dist/
+build/
+**/build/
+
+# Environment variables (Root & Subfolders like frontend/.env)
 .env
+.env.*
+**/.env
+**/.env.*
+
+# Local Claude settings
+.claude/
+CLAUDE.md
+.claudeignore
 
 # Logs
 logs
 *.log
-
-# Runtime data
-pids
-*.pid
-*.seed
-
-# Coverage directory used by tools like istanbul
-coverage/
-
-# Production build
-build/
-
-# Misc
-.DS_Thumbs
-.env.local
-.env.development
-.env.test
-.env.production
-
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Runtime & Testing data
+pids
+*.pid
+*.seed
+coverage/
 
-
-
-claude.md
+# OS System Files
+.DS_Store
+Thumbs.db

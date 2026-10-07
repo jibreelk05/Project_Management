@@ -5,7 +5,10 @@ import {
   createProject,
   updateProject,
   deleteProject,
+  addMemberToProject,
+  removeMemberFromProject,
 } from '../services/projectService.js';
+import { AppError } from '../utils/appError.js';
 
 export const getProjects = catchAsync(async (req, res, next) => {
   const { data: projects, pagination } = await getAllProjects(req.query, req.user._id, req.user.role);
@@ -59,6 +62,40 @@ export const removeProject = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: 'success',
     message: 'Project deleted successfully',
+    data: {
+      project,
+    },
+  });
+});
+
+export const addProjectMember = catchAsync(async (req, res, next) => {
+  const memberId = req.body.userId || req.body.memberId || req.body.developerId;
+
+  if (!memberId) {
+    throw new AppError('Member ID is required', 400);
+  }
+
+  const project = await addMemberToProject(req.params.id, memberId, req.user._id, req.user.role);
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      project,
+    },
+  });
+});
+
+export const removeProjectMember = catchAsync(async (req, res, next) => {
+  const memberId = req.body.userId || req.body.memberId || req.body.developerId;
+
+  if (!memberId) {
+    throw new AppError('Member ID is required', 400);
+  }
+
+  const project = await removeMemberFromProject(req.params.id, memberId, req.user._id, req.user.role);
+
+  res.status(200).json({
+    status: 'success',
     data: {
       project,
     },

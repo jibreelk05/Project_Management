@@ -91,3 +91,52 @@ export const deleteProject = async (projectId, userId, userRole) => {
 
   return project;
 };
+
+export const addMemberToProject = async (projectId, memberId, userId, userRole) => {
+  const project = await Project.findById(projectId);
+
+  if (!project) {
+    throw new AppError('Project not found', 404);
+  }
+
+  // Only ADMIN or the creator (PROJECT_MANAGER) can add members
+  if (userRole !== 'ADMIN' && project.createdBy.toString() !== userId.toString()) {
+    throw new AppError('You do not have permission to add members to this project', 403);
+  }
+
+  // Clean null values and add member using $addToSet
+  await Project.findByIdAndUpdate(projectId, { $pull: { teamMembers: null } });
+
+  const updatedProject = await Project.findByIdAndUpdate(
+    projectId,
+    { $addToSet: { teamMembers: memberId } },
+    { new: true }
+  )
+    .populate('createdBy', 'name email role')
+    .populate('teamMembers', 'name email role');
+
+  return updatedProject;
+};
+
+export const removeMemberFromProject = async (projectId, memberId, userId, userRole) => {
+  const project = await Project.findById(projectId);
+
+  if (!project) {
+    throw new AppError('Project not found', 404);
+  }
+
+  // Only ADMIN or the creator (PROJECT_MANAGER) can remove members
+  if (userRole !== 'ADMIN' && project.createdBy.toString() !== userId.toString()) {
+    throw new AppError('You do not have permission to remove members from this project', 403);
+  }
+
+  const updatedProject = await Project.findByIdAndUpdate(
+    projectId,
+    { $pull: { teamMembers: memberId } },
+    { new: true }
+  )
+    .populate('createdBy', 'name email role')
+    .populate('teamMembers', 'name email role');
+
+  return updatedProject;
+};
