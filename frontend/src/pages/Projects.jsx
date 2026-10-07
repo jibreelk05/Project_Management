@@ -72,6 +72,11 @@ export default function Projects() {
   };
 
   const handleSubmit = async (form) => {
+    if (!form.name || !form.name.trim()) {
+      toast.error('Project name is required');
+      return;
+    }
+
     const payload = {
       name: form.name,
       description: form.description || undefined,
@@ -82,14 +87,17 @@ export default function Projects() {
     try {
       setSubmitting(true);
       if (editingProject) {
-        await updateProject(editingProject._id, payload);
+        const response = await updateProject(editingProject._id, payload);
         toast.success('Project updated successfully');
+        setProjects((prev) =>
+          prev.map((p) => (p._id === editingProject._id ? response.data.project : p))
+        );
       } else {
-        await createProject(payload);
+        const response = await createProject(payload);
         toast.success('Project created successfully');
+        setProjects((prev) => [response.data.project, ...prev]);
       }
       closeModal();
-      await fetchProjects();
     } catch (err) {
       const errorMsg = err.response?.data?.message || 'Failed to save project.';
       setError(errorMsg);
@@ -104,8 +112,8 @@ export default function Projects() {
       setDeleting(true);
       await deleteProject(deleteTarget._id);
       toast.success('Project deleted successfully');
+      setProjects((prev) => prev.filter((p) => p._id !== deleteTarget._id));
       setDeleteTarget(null);
-      await fetchProjects();
     } catch (err) {
       const errorMsg = err.response?.data?.message || 'Failed to delete project.';
       setError(errorMsg);

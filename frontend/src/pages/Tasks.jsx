@@ -81,6 +81,11 @@ export default function Tasks() {
   };
 
   const handleSubmit = async (form) => {
+    if (!form.title || !form.title.trim()) {
+      toast.error('Task title is required');
+      return;
+    }
+
     const payload = {
       title: form.title,
       description: form.description || undefined,
@@ -93,14 +98,17 @@ export default function Tasks() {
     try {
       setSubmitting(true);
       if (editingTask) {
-        await updateTask(editingTask._id, payload);
+        const response = await updateTask(editingTask._id, payload);
         toast.success('Task updated successfully');
+        setTasks((prev) =>
+          prev.map((t) => (t._id === editingTask._id ? response.data.task : t))
+        );
       } else {
-        await createTask(payload);
+        const response = await createTask(payload);
         toast.success('Task created successfully');
+        setTasks((prev) => [response.data.task, ...prev]);
       }
       closeModal();
-      await fetchTasks();
     } catch (err) {
       const errorMsg = err.response?.data?.message || 'Failed to save task.';
       setError(errorMsg);
@@ -115,8 +123,8 @@ export default function Tasks() {
       setDeleting(true);
       await deleteTask(deleteTarget._id);
       toast.success('Task deleted successfully');
+      setTasks((prev) => prev.filter((t) => t._id !== deleteTarget._id));
       setDeleteTarget(null);
-      await fetchTasks();
     } catch (err) {
       const errorMsg = err.response?.data?.message || 'Failed to delete task.';
       setError(errorMsg);
