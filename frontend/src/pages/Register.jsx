@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserPlus } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { register as registerApi } from '../services/authService';
 
 export default function Register() {
@@ -24,7 +25,9 @@ export default function Register() {
     setError('');
 
     if (form.password !== form.confirmPassword) {
-      setError('Passwords do not match.');
+      const errorMsg = 'Passwords do not match.';
+      setError(errorMsg);
+      toast.error(errorMsg);
       return;
     }
 
@@ -37,11 +40,12 @@ export default function Register() {
         password: form.password,
         role: form.role,
       });
+      toast.success('Account created successfully! Please sign in.');
       navigate('/login');
     } catch (err) {
-      setError(
-        err.response?.data?.message || 'Registration failed. Please try again.',
-      );
+      const errorMsg = err.response?.data?.message || 'Registration failed. Please try again.';
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setSubmitting(false);
     }

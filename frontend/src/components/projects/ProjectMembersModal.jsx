@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { X, UserPlus, UserMinus } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { getUsers, assignMemberToProject, removeMemberFromProject } from '../../services/teamService';
 
 export default function ProjectMembersModal({ open, project, onClose, onUpdate }) {
@@ -21,7 +22,9 @@ export default function ProjectMembersModal({ open, project, onClose, onUpdate }
       const res = await getUsers();
       setUsers(res.data?.users || []);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to load users.');
+      const errorMsg = err.response?.data?.message || 'Failed to load users.';
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -39,9 +42,12 @@ export default function ProjectMembersModal({ open, project, onClose, onUpdate }
         project.teamMembers = updatedProject.teamMembers;
       }
 
+      toast.success('Member assigned successfully');
       onUpdate?.();
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to assign member.');
+      const errorMsg = err.response?.data?.message || 'Failed to assign member.';
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setActionInProgress(null);
     }
@@ -59,9 +65,12 @@ export default function ProjectMembersModal({ open, project, onClose, onUpdate }
         project.teamMembers = updatedProject.teamMembers;
       }
 
+      toast.success('Member removed successfully');
       onUpdate?.();
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to remove member.');
+      const errorMsg = err.response?.data?.message || 'Failed to remove member.';
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setActionInProgress(null);
     }

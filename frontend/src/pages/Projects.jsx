@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { FolderPlus, Search } from 'lucide-react';
+import toast from 'react-hot-toast';
 import ProjectCard from '../components/projects/ProjectCard';
 import ProjectModal from '../components/projects/ProjectModal';
 import ProjectMembersModal from '../components/projects/ProjectMembersModal';
@@ -46,7 +47,9 @@ export default function Projects() {
       const res = await getProjects(params);
       setProjects(res.data?.projects || []);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to load projects.');
+      const errorMsg = err.response?.data?.message || 'Failed to load projects.';
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -80,13 +83,17 @@ export default function Projects() {
       setSubmitting(true);
       if (editingProject) {
         await updateProject(editingProject._id, payload);
+        toast.success('Project updated successfully');
       } else {
         await createProject(payload);
+        toast.success('Project created successfully');
       }
       closeModal();
       await fetchProjects();
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to save project.');
+      const errorMsg = err.response?.data?.message || 'Failed to save project.';
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setSubmitting(false);
     }
@@ -96,10 +103,13 @@ export default function Projects() {
     try {
       setDeleting(true);
       await deleteProject(deleteTarget._id);
+      toast.success('Project deleted successfully');
       setDeleteTarget(null);
       await fetchProjects();
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to delete project.');
+      const errorMsg = err.response?.data?.message || 'Failed to delete project.';
+      setError(errorMsg);
+      toast.error(errorMsg);
       setDeleteTarget(null);
     } finally {
       setDeleting(false);

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { LogIn } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { login as loginApi } from '../services/authService';
 import { useAuth } from '../hooks/useAuth';
 
@@ -23,11 +24,12 @@ export default function Login() {
     try {
       const res = await loginApi(form);
       login(res.data.user, res.token);
+      toast.success('Login successful! Welcome back.');
       navigate('/dashboard', { replace: true });
     } catch (err) {
-      setError(
-        err.response?.data?.message || 'Login failed. Please try again.',
-      );
+      const errorMsg = err.response?.data?.message || 'Login failed. Please try again.';
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setSubmitting(false);
     }

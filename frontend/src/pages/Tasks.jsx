@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Plus } from 'lucide-react';
+import toast from 'react-hot-toast';
 import TaskCard from '../components/tasks/TaskCard';
 import TaskModal from '../components/tasks/TaskModal';
 import TaskFilters from '../components/tasks/TaskFilters';
@@ -45,7 +46,9 @@ export default function Tasks() {
       setTasks(res.data?.tasks || []);
       setPagination(res.pagination || { page: 1, pages: 1, total: 0 });
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to load tasks.');
+      const errorMsg = err.response?.data?.message || 'Failed to load tasks.';
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -91,13 +94,17 @@ export default function Tasks() {
       setSubmitting(true);
       if (editingTask) {
         await updateTask(editingTask._id, payload);
+        toast.success('Task updated successfully');
       } else {
         await createTask(payload);
+        toast.success('Task created successfully');
       }
       closeModal();
       await fetchTasks();
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to save task.');
+      const errorMsg = err.response?.data?.message || 'Failed to save task.';
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setSubmitting(false);
     }
@@ -107,10 +114,13 @@ export default function Tasks() {
     try {
       setDeleting(true);
       await deleteTask(deleteTarget._id);
+      toast.success('Task deleted successfully');
       setDeleteTarget(null);
       await fetchTasks();
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to delete task.');
+      const errorMsg = err.response?.data?.message || 'Failed to delete task.';
+      setError(errorMsg);
+      toast.error(errorMsg);
       setDeleteTarget(null);
     } finally {
       setDeleting(false);
