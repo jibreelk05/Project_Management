@@ -9,7 +9,7 @@
     "dev:client": "vite --root frontend",
     "dev:server": "nodemon src/server.js",
     "start": "node src/server.js",
-    "build": "vite build --root frontend"
+    "build": "vite build frontend"
   },
   "keywords": [],
   "author": "",
