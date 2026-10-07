@@ -89,10 +89,37 @@ export default function ProjectMembersModal({ open, project, onClose, onUpdate }
 
         <p className="mt-1 text-sm text-gray-500">Project: {project?.name}</p>
 
-        {error && <div className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>}
+        {error && (
+          <div className="mt-4 flex items-start justify-between rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+            <span>{error}</span>
+            <button
+              onClick={() => { setError(''); fetchUsers(); }}
+              className="ml-2 rounded-md px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-100"
+            >
+              Retry
+            </button>
+          </div>
+        )}
 
         {loading ? (
-          <p className="mt-6 text-sm text-gray-500">Loading team members…</p>
+          <div className="mt-4 space-y-2">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="animate-pulse rounded-lg border border-slate-200 bg-slate-50 px-3 py-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="h-4 w-32 rounded bg-slate-200"></div>
+                    <div className="mt-2 h-3 w-48 rounded bg-slate-200"></div>
+                  </div>
+                  <div className="h-7 w-16 rounded bg-slate-200"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : users.length === 0 ? (
+          <div className="mt-6 rounded-lg border border-slate-200 bg-slate-50 p-8 text-center">
+            <p className="text-sm font-medium text-slate-700">No users available</p>
+            <p className="mt-1 text-sm text-slate-500">There are no users to assign to this project.</p>
+          </div>
         ) : (
           <div className="mt-4 max-h-96 space-y-2 overflow-y-auto">
             {users.map((u) => {
